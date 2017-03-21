@@ -257,7 +257,8 @@ typedef enum PaWasapiFlags
     paWinWasapiRedirectHostProcessor    = 2,
     paWinWasapiUseChannelMask           = 4,
     paWinWasapiPolling                  = 8,
-    paWinWasapiThreadPriority           = 16
+    paWinWasapiThreadPriority           = 16,
+    paWinWasapiLoopback                 = 131072
 } PaWasapiFlags;
 
 typedef void (*PaWasapiHostProcessorCallback) (
@@ -2351,7 +2352,7 @@ class AsioSettings(object):
 
 class WasapiSettings(object):
 
-    def __init__(self, exclusive=False):
+    def __init__(self, exclusive=False, loopback=False):
         """WASAPI-specific input/output settings.
 
         Objects of this class can be used as *extra_settings* argument
@@ -2364,6 +2365,8 @@ class WasapiSettings(object):
         exclusive : bool
             Exclusive mode allows to deliver audio data directly to
             hardware bypassing software mixing.
+        loopback : bool
+            Loopback mode treats an output device like an input device.
 
         Examples
         --------
@@ -2382,6 +2385,8 @@ class WasapiSettings(object):
         flags = 0x0
         if exclusive:
             flags |= _lib.paWinWasapiExclusive
+        if loopback:
+            flags |= _lib.paWinWasapiLoopback
         self._streaminfo = _ffi.new('PaWasapiStreamInfo*', dict(
             size=_ffi.sizeof('PaWasapiStreamInfo'),
             hostApiType=_lib.paWASAPI,
